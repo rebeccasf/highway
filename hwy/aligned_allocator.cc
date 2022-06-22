@@ -27,7 +27,14 @@
 namespace hwy {
 namespace {
 
+#if HWY_ARCH_RVV && defined(__riscv_vector)
+// Not actually an upper bound on the size, but this value prevents crossing a
+// 4K boundary (relevant on Andes).
+constexpr size_t kAlignment = HWY_MAX(HWY_ALIGNMENT, 4096);
+#else
 constexpr size_t kAlignment = HWY_MAX(HWY_ALIGNMENT, kMaxVectorSize);
+#endif
+
 // On x86, aliasing can only occur at multiples of 2K, but that's too wasteful
 // if this is used for single-vector allocations. 256 is more reasonable.
 constexpr size_t kAlias = kAlignment * 4;
